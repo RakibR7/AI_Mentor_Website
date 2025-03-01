@@ -6,7 +6,7 @@ function About() {
     <div className="Page">
       <h1>About Mentor AI</h1>
       <p>
-        Mentor AI is designed to provide guidance and mentorship through simple, intuitive, and AI-powered insights.
+        Mentor AI about page.
       </p>
     </div>
   );

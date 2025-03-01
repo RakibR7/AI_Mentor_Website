@@ -7,7 +7,7 @@ function Home() {
   return (
     <div className="Page">
       <h1>{message}</h1>
-      <p>Your personal AI mentor at your service.</p>
+      <p>Your personal AI mentor.</p>
     </div>
   );
 }
