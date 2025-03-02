@@ -1,5 +1,6 @@
 import React from "react";
-import "./Page.css";
+//import "./Page.css";
+import "./Chat.css"; // Reusing Chat.css; create About.css for custom styles if needed
 
 function About() {
   return (

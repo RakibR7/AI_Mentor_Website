@@ -1,0 +1,44 @@
+.ChatPage {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.Conversation {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  height: 300px;
+  overflow-y: auto;
+}
+
+.userMsg {
+  text-align: right;
+  background-color: #e0f7fa;
+  padding: 5px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.aiMsg {
+  text-align: left;
+  background-color: #f1f8e9;
+  padding: 5px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.InputArea {
+  display: flex;
+}
+
+.InputArea input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.InputArea button {
+  padding: 10px;
+  font-size: 16px;
+}
