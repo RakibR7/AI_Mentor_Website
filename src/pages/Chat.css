@@ -96,3 +96,13 @@
   cursor: pointer;
   border-radius: 0 4px 4px 0;
 }
+
+.model-selector {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.model-selector select {
+  margin-left: 10px;
+  padding: 5px;
+}
