@@ -2,13 +2,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const fetch = require('node-fetch'); // Install node-fetch@2 for CommonJS support
+const fetch = require('node-fetch'); // Ensure you're using node-fetch@2
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB using the connection string from your .env file
+// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -33,9 +33,7 @@ const Conversation = mongoose.model('Conversation', conversationSchema);
 app.use(express.json());
 app.use(cors());
 
-// --- API Endpoints ---
-
-// Get all conversations (sorted by newest first)
+// Get all conversations
 app.get('/api/conversations', async (req, res) => {
   try {
     const conversations = await Conversation.find().sort({ createdAt: -1 });
@@ -46,11 +44,11 @@ app.get('/api/conversations', async (req, res) => {
   }
 });
 
-// Create new conversation
+// Create new conversation (with empty title)
 app.post('/api/conversations', async (req, res) => {
   try {
     const { title, model } = req.body;
-    const newConversation = new Conversation({ title, model, messages: [] });
+    const newConversation = new Conversation({ title: title || "", model, messages: [] });
     await newConversation.save();
     res.status(201).json(newConversation);
   } catch (error) {
@@ -59,7 +57,7 @@ app.post('/api/conversations', async (req, res) => {
   }
 });
 
-// Add a message to a conversation
+// Add message to conversation and update title on first user message
 app.post('/api/messages', async (req, res) => {
   try {
     const { conversationId, sender, text, model } = req.body;
@@ -69,11 +67,31 @@ app.post('/api/messages', async (req, res) => {
       return res.status(404).json({ error: 'Conversation not found' });
     }
 
+    // If it's the first user message, set the title to the first few words of the message.
+    if (conversation.messages.length === 0 && sender === "user") {
+      const title = text.split(" ").slice(0, 5).join(" ");
+      conversation.title = title;
+    }
+
     conversation.messages.push({ sender, text });
-    conversation.model = model; // update model if needed
+    conversation.model = model;
     await conversation.save();
 
     res.json(conversation);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete conversation
+app.delete('/api/conversations/:id', async (req, res) => {
+  try {
+    const conversation = await Conversation.findByIdAndDelete(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation not found' });
+    }
+    res.json({ message: 'Conversation deleted' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
@@ -104,7 +122,7 @@ app.post('/api/openai', async (req, res) => {
 
     const data = await response.json();
 
-    // Check for errors in the OpenAI API response
+    // Check for OpenAI API errors
     if (!response.ok) {
       console.error('OpenAI API Error:', data);
       return res.status(response.status).json({
@@ -113,7 +131,6 @@ app.post('/api/openai', async (req, res) => {
       });
     }
 
-    // Validate response structure
     if (!data.choices || !data.choices[0]?.message?.content) {
       console.error('Unexpected API response:', data);
       return res.status(500).json({

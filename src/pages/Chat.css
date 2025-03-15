@@ -1,4 +1,4 @@
-/* Chat.css */
+/* src/pages/Chat.css */
 .ChatContainer {
   display: flex;
   height: 100vh;
@@ -11,6 +11,7 @@
   border-right: 1px solid #ddd;
   padding: 10px;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .NewConversationButton {
@@ -23,6 +24,10 @@
   cursor: pointer;
 }
 
+.model-selector {
+  margin-bottom: 10px;
+}
+
 .ConversationList {
   list-style: none;
   padding: 0;
@@ -30,6 +35,9 @@
 }
 
 .ConversationList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid #ddd;
@@ -37,6 +45,13 @@
 
 .ConversationList li.active {
   background-color: #e0f7fa;
+}
+
+.DeleteButton {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
 }
 
 .ChatMain {
@@ -95,14 +110,4 @@
   color: #fff;
   cursor: pointer;
   border-radius: 0 4px 4px 0;
-}
-
-.model-selector {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.model-selector select {
-  margin-left: 10px;
-  padding: 5px;
 }

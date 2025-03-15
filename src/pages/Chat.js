@@ -43,7 +43,7 @@ function Chat() {
         })
       });
 
-      // Get AI response (pass selected model as needed)
+      // Get AI response
       const aiReply = await fetchAIResponse(userInput, selectedModel);
 
       // Save AI response
@@ -58,7 +58,7 @@ function Chat() {
         })
       });
 
-      // Refresh conversations from the backend
+      // Refresh conversations from backend
       const response = await fetch('http://localhost:5000/api/conversations');
       const updatedConversations = await response.json();
       setConversations(updatedConversations);
@@ -69,13 +69,20 @@ function Chat() {
     setUserInput("");
   };
 
+  // Allow sending message by pressing Enter
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSend();
+    }
+  };
+
   const handleNewConversation = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: "New Conversation",
+          title: "", // Start with an empty title; will update on first user message
           model: selectedModel
         })
       });
@@ -88,7 +95,23 @@ function Chat() {
     }
   };
 
-  // Find the active conversation object
+  const handleDeleteConversation = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/api/conversations/${id}`, {
+        method: 'DELETE'
+      });
+      const updatedConversations = conversations.filter(conv => conv._id !== id);
+      setConversations(updatedConversations);
+      if (activeConversationId === id && updatedConversations.length > 0) {
+        setActiveConversationId(updatedConversations[0]._id);
+      } else if (updatedConversations.length === 0) {
+        setActiveConversationId(null);
+      }
+    } catch (error) {
+      console.error("Error deleting conversation:", error);
+    }
+  };
+
   const activeConversation = conversations.find(conv => conv._id === activeConversationId);
 
   return (
@@ -100,12 +123,13 @@ function Chat() {
         <ModelSelector selectedModel={selectedModel} onModelChange={setSelectedModel} />
         <ul className="ConversationList">
           {conversations.map((conv) => (
-            <li
-              key={conv._id}
-              className={conv._id === activeConversationId ? "active" : ""}
-              onClick={() => setActiveConversationId(conv._id)}
-            >
-              {conv.title}
+            <li key={conv._id} className={conv._id === activeConversationId ? "active" : ""}>
+              <span onClick={() => setActiveConversationId(conv._id)}>
+                {conv.title ? conv.title : "Untitled Conversation"}
+              </span>
+              <button className="DeleteButton" onClick={() => handleDeleteConversation(conv._id)}>
+                X
+              </button>
             </li>
           ))}
         </ul>
@@ -124,6 +148,7 @@ function Chat() {
             type="text"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Ask your mentor..."
           />
           <button onClick={handleSend}>Send</button>
