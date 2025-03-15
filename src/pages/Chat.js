@@ -1,108 +1,95 @@
+// src/pages/Chat.js
 import React, { useState, useEffect } from "react";
 import { fetchAIResponse } from "../api/aiService";
+import ModelSelector from "../components/ModelSelector";
 import "./Chat.css";
 
 function Chat() {
-  // conversations: an array of conversation objects { id, title, messages }
   const [conversations, setConversations] = useState([]);
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [userInput, setUserInput] = useState("");
+  const [selectedModel, setSelectedModel] = useState("gpt-3.5-turbo");
 
-  // Load conversation threads from localStorage on component mount
+  // Load conversations from backend on component mount
   useEffect(() => {
-    const stored = localStorage.getItem("chatConversations");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setConversations(parsed);
-      if (parsed.length > 0) {
-        setActiveConversationId(parsed[0].id);
+    const loadConversations = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/conversations');
+        const data = await response.json();
+        setConversations(data);
+        if (data.length > 0) {
+          setActiveConversationId(data[0]._id);
+        }
+      } catch (error) {
+        console.error("Error loading conversations:", error);
       }
-    } else {
-      // Create an initial conversation if none exist
-      const newConversation = {
-        id: Date.now().toString(),
-        title: "New Conversation",
-        messages: []
-      };
-      setConversations([newConversation]);
-      setActiveConversationId(newConversation.id);
-    }
+    };
+    loadConversations();
   }, []);
 
-  // Save conversations to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("chatConversations", JSON.stringify(conversations));
-  }, [conversations]);
-
-  // Get the active conversation object
-  const activeConversation = conversations.find(
-    (conv) => conv.id === activeConversationId
-  );
-
   const handleSend = async () => {
-    if (!userInput.trim() || !activeConversation) return;
-
-    // Append the user's message to the active conversation
-    const updatedConversations = conversations.map((conv) => {
-      if (conv.id === activeConversationId) {
-        return {
-          ...conv,
-          messages: [...conv.messages, { sender: "user", text: userInput }]
-        };
-      }
-      return conv;
-    });
-    setConversations(updatedConversations);
-
-    const input = userInput;
-    setUserInput("");
+    if (!userInput.trim() || !activeConversationId) return;
 
     try {
-      const aiReply = await fetchAIResponse(input);
-      // Optionally, update the conversation title with the first user message
-      const newTitle =
-        activeConversation.messages.length === 0 ? input : activeConversation.title;
-      const updatedConversations2 = updatedConversations.map((conv) => {
-        if (conv.id === activeConversationId) {
-          return {
-            ...conv,
-            title: newTitle,
-            messages: [...conv.messages, { sender: "ai", text: aiReply }]
-          };
-        }
-        return conv;
+      // Save user message
+      await fetch('http://localhost:5000/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId: activeConversationId,
+          sender: "user",
+          text: userInput,
+          model: selectedModel
+        })
       });
-      setConversations(updatedConversations2);
+
+      // Get AI response (pass selected model as needed)
+      const aiReply = await fetchAIResponse(userInput, selectedModel);
+
+      // Save AI response
+      await fetch('http://localhost:5000/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId: activeConversationId,
+          sender: "ai",
+          text: aiReply,
+          model: selectedModel
+        })
+      });
+
+      // Refresh conversations from the backend
+      const response = await fetch('http://localhost:5000/api/conversations');
+      const updatedConversations = await response.json();
+      setConversations(updatedConversations);
     } catch (error) {
-      const updatedConversations3 = updatedConversations.map((conv) => {
-        if (conv.id === activeConversationId) {
-          return {
-            ...conv,
-            messages: [
-              ...conv.messages,
-              { sender: "ai", text: "Sorry, something went wrong. Please try again." }
-            ]
-          };
-        }
-        return conv;
+      console.error("Error:", error);
+    }
+
+    setUserInput("");
+  };
+
+  const handleNewConversation = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: "New Conversation",
+          model: selectedModel
+        })
       });
-      setConversations(updatedConversations3);
+
+      const newConversation = await response.json();
+      setConversations([newConversation, ...conversations]);
+      setActiveConversationId(newConversation._id);
+    } catch (error) {
+      console.error("Error creating conversation:", error);
     }
   };
 
-  const handleNewConversation = () => {
-    const newConversation = {
-      id: Date.now().toString(),
-      title: "New Conversation",
-      messages: []
-    };
-    setConversations([newConversation, ...conversations]);
-    setActiveConversationId(newConversation.id);
-  };
-
-  const handleSelectConversation = (id) => {
-    setActiveConversationId(id);
-  };
+  // Find the active conversation object
+  const activeConversation = conversations.find(conv => conv._id === activeConversationId);
 
   return (
     <div className="ChatContainer">
@@ -110,14 +97,15 @@ function Chat() {
         <button className="NewConversationButton" onClick={handleNewConversation}>
           + New Conversation
         </button>
+        <ModelSelector selectedModel={selectedModel} onModelChange={setSelectedModel} />
         <ul className="ConversationList">
           {conversations.map((conv) => (
             <li
-              key={conv.id}
-              className={conv.id === activeConversationId ? "active" : ""}
-              onClick={() => handleSelectConversation(conv.id)}
+              key={conv._id}
+              className={conv._id === activeConversationId ? "active" : ""}
+              onClick={() => setActiveConversationId(conv._id)}
             >
-              {conv.title.length > 20 ? conv.title.substring(0, 20) + "..." : conv.title}
+              {conv.title}
             </li>
           ))}
         </ul>
