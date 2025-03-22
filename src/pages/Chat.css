@@ -14,6 +14,10 @@
   overflow-y: auto;
 }
 
+.tutor-selector {
+  margin-bottom: 10px;
+}
+
 .NewConversationButton {
   width: 100%;
   padding: 10px;
@@ -22,10 +26,6 @@
   color: #fff;
   border: none;
   cursor: pointer;
-}
-
-.model-selector {
-  margin-bottom: 10px;
 }
 
 .ConversationList {

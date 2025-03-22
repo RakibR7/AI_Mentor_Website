@@ -16,7 +16,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log("Connected to MongoDB"))
 .catch((err) => console.error("MongoDB connection error:", err));
 
-// Conversation Schema and Model
+// Conversation Schema (same for all tutors)
 const conversationSchema = new mongoose.Schema({
   title: String,
   messages: [{
@@ -27,16 +27,30 @@ const conversationSchema = new mongoose.Schema({
   model: String,
   createdAt: { type: Date, default: Date.now }
 });
-const Conversation = mongoose.model('Conversation', conversationSchema);
+
+// Helper: Get dynamic Conversation model for a given tutor
+function getConversationModel(tutor) {
+  const modelName = 'Conversation_' + tutor;
+  if (mongoose.models[modelName]) {
+    return mongoose.models[modelName];
+  }
+  // Third parameter is the collection name
+  return mongoose.model(modelName, conversationSchema, 'conversations_' + tutor);
+}
 
 // Middleware
 app.use(express.json());
 app.use(cors());
 
-// Get all conversations
+// GET all conversations for a specific tutor
 app.get('/api/conversations', async (req, res) => {
   try {
-    const conversations = await Conversation.find().sort({ createdAt: -1 });
+    const tutor = req.query.tutor;
+    if (!tutor) {
+      return res.status(400).json({ error: 'Tutor query parameter is required' });
+    }
+    const ConversationModel = getConversationModel(tutor);
+    const conversations = await ConversationModel.find().sort({ createdAt: -1 });
     res.json(conversations);
   } catch (error) {
     console.error(error);
@@ -44,11 +58,15 @@ app.get('/api/conversations', async (req, res) => {
   }
 });
 
-// Create new conversation (with empty title)
+// Create new conversation with tutor field
 app.post('/api/conversations', async (req, res) => {
   try {
-    const { title, model } = req.body;
-    const newConversation = new Conversation({ title: title || "", model, messages: [] });
+    const { title, model, tutor } = req.body;
+    if (!tutor) {
+      return res.status(400).json({ error: 'Tutor is required' });
+    }
+    const ConversationModel = getConversationModel(tutor);
+    const newConversation = new ConversationModel({ title: title || "", model, messages: [] });
     await newConversation.save();
     res.status(201).json(newConversation);
   } catch (error) {
@@ -60,17 +78,21 @@ app.post('/api/conversations', async (req, res) => {
 // Add message to conversation and update title on first user message
 app.post('/api/messages', async (req, res) => {
   try {
-    const { conversationId, sender, text, model } = req.body;
-    const conversation = await Conversation.findById(conversationId);
+    const { conversationId, sender, text, model, tutor } = req.body;
+    if (!tutor) {
+      return res.status(400).json({ error: 'Tutor is required' });
+    }
+    const ConversationModel = getConversationModel(tutor);
+    const conversation = await ConversationModel.findById(conversationId);
 
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation not found' });
     }
 
-    // If it's the first user message, set the title to the first few words of the message.
+    // Update title on the first user message if not already set
     if (conversation.messages.length === 0 && sender === "user") {
-      const title = text.split(" ").slice(0, 5).join(" ");
-      conversation.title = title;
+      const newTitle = text.split(" ").slice(0, 5).join(" ");
+      conversation.title = newTitle;
     }
 
     conversation.messages.push({ sender, text });
@@ -84,10 +106,15 @@ app.post('/api/messages', async (req, res) => {
   }
 });
 
-// Delete conversation
+// Delete conversation (tutor passed as query parameter)
 app.delete('/api/conversations/:id', async (req, res) => {
   try {
-    const conversation = await Conversation.findByIdAndDelete(req.params.id);
+    const tutor = req.query.tutor;
+    if (!tutor) {
+      return res.status(400).json({ error: 'Tutor query parameter is required' });
+    }
+    const ConversationModel = getConversationModel(tutor);
+    const conversation = await ConversationModel.findByIdAndDelete(req.params.id);
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation not found' });
     }
@@ -98,7 +125,7 @@ app.delete('/api/conversations/:id', async (req, res) => {
   }
 });
 
-// OpenAI endpoint with model selection
+// OpenAI endpoint (unchanged)
 app.post('/api/openai', async (req, res) => {
   const { message, model } = req.body;
 
@@ -122,7 +149,6 @@ app.post('/api/openai', async (req, res) => {
 
     const data = await response.json();
 
-    // Check for OpenAI API errors
     if (!response.ok) {
       console.error('OpenAI API Error:', data);
       return res.status(response.status).json({
