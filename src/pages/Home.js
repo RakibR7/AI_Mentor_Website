@@ -1,14 +1,25 @@
 import React from "react"
+import { useNavigate } from "react-router-dom"
 import "./Home.css"
 
 function Home() {
+  const navigate = useNavigate()
+
+  // Navigate to /subject-tutor when button is clicked
+  const handleExploreTutors = () => {
+    navigate("/subject-tutor")
+  }
+
   return (
     <div className="HomePage">
       <h1>Mentor AI</h1>
       <h2>Empowering Your Learning Journey</h2>
       <p>Experience interactive tutoring through our AI-driven platform.</p>
-      <button>Explore Tutors</button>
 
+      {/* Button triggers navigation */}
+      <button onClick={handleExploreTutors}>Explore Tutors</button>
+
+      {/* Credits in bottom-right corner */}
       <div className="credit-homepage">
         Ocean - Photo by Engin Akyurt from{" "}
         <a
