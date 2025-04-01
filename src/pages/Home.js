@@ -1,17 +1,24 @@
 // src/pages/Home.js
-import React, { useState } from "react";
-import "./Chat.css"; // Using Chat.css for page styling; you can create a separate Home.css if preferred
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import "./Home.css"
 
 function Home() {
-  const [message] = useState("Welcome to Mentor AI");
+  const navigate = useNavigate()
+
+  const handleExploreTutors = () => {
+    navigate("/subject-tutor")
+  }
 
   return (
-    <div className="Page">
-      <h1>{message}</h1>
-      <p>Your personal AI mentor at your service.</p>
+    <div className="HomePage">
+      <h1>Mentor AI</h1>
+      <h2>Empowering Your Learning Journey</h2>
+      <p>Experience interactive tutoring in Biology, Math, and English through our AI-driven platform.</p>
+      <p>Get instant feedback, explanations, and guidance — all tailored to your needs.</p>
+      <button onClick={handleExploreTutors}>Explore Tutors</button>
     </div>
-  );
+  )
 }
 
-export default Home;
-
+export default Home
