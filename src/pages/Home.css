@@ -1,0 +1,78 @@
+/* Home.css */
+.HomePage {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  position: relative; /* for absolute positioning if you prefer */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  background: url("C:\Users\Rakib\PycharmProjects\Ai Mentor Web\ai-mentor\public\ocean.jpg") no-repeat center center;
+  background-size: cover;
+  animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Make all main text white */
+.HomePage h1,
+.HomePage h2,
+.HomePage p,
+.HomePage button {
+  color: #fff;
+}
+
+.HomePage h1 {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.HomePage h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.HomePage p {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.HomePage button {
+  font-size: 18px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+
+.HomePage button:hover {
+  background-color: #45a049;
+}
+
+/* Positioned bottom-right with a smaller font, no full link text shown */
+.credit-homepage {
+  position: fixed; /* or absolute if you prefer it inside the Home page only */
+  bottom: 10px;
+  right: 10px;
+  font-size: 14px;
+  color: #fff;
+  background-color: rgba(0,0,0,0.4);
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+.credit-homepage a {
+  color: #fff;
+  text-decoration: underline;
+}

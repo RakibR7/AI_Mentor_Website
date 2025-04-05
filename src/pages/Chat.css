@@ -1,8 +1,18 @@
-/* Chat.css */
+/* src/pages/Chat.css */
 .ChatContainer {
   display: flex;
   height: 100vh;
   font-family: Arial, sans-serif;
+
+  /*background: url('C:\Users\Rakib\PycharmProjects\Ai Mentor Web\ai-mentor\public\study.jpg') no-repeat center center;*/
+  background-size: cover;
+  min-height: 100vh;
+  animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .Sidebar {
@@ -11,6 +21,11 @@
   border-right: 1px solid #ddd;
   padding: 10px;
   box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.tutor-selector {
+  margin-bottom: 10px;
 }
 
 .NewConversationButton {
@@ -30,6 +45,9 @@
 }
 
 .ConversationList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid #ddd;
@@ -37,6 +55,13 @@
 
 .ConversationList li.active {
   background-color: #e0f7fa;
+}
+
+.DeleteButton {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
 }
 
 .ChatMain {
@@ -51,18 +76,20 @@
   flex: 1;
   overflow-y: auto;
   padding-right: 10px;
-  background-color: #f9f9f9;
+  background-color: rgba(249, 249, 249, 0.7); /* Translucent instead of solid */
   border-radius: 5px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
 }
 
 .userMsg, .aiMsg {
+  background-color: rgba(255, 255, 255, 0.7); /* Also translucent for messages */
   padding: 10px;
   margin: 10px;
   border-radius: 5px;
   max-width: 80%;
 }
+
 
 .userMsg {
   background-color: #e0f7fa;
@@ -95,14 +122,4 @@
   color: #fff;
   cursor: pointer;
   border-radius: 0 4px 4px 0;
-}
-
-.model-selector {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.model-selector select {
-  margin-left: 10px;
-  padding: 5px;
 }

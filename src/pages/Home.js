@@ -1,17 +1,37 @@
-// src/pages/Home.js
-import React, { useState } from "react";
-import "./Chat.css"; // Using Chat.css for page styling; you can create a separate Home.css if preferred
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import "./Home.css"
 
 function Home() {
-  const [message] = useState("Welcome to Mentor AI");
+  const navigate = useNavigate()
+
+  // Navigate to /subject-tutor when button is clicked
+  const handleExploreTutors = () => {
+    navigate("/subject-tutor")
+  }
 
   return (
-    <div className="Page">
-      <h1>{message}</h1>
-      <p>Your personal AI mentor at your service.</p>
+    <div className="HomePage">
+      <h1>Mentor AI</h1>
+      <h2>Empowering Your Learning Journey</h2>
+      <p>Experience interactive tutoring through our AI-driven platform.</p>
+
+      {/* Button triggers navigation */}
+      <button onClick={handleExploreTutors}>Explore Tutors</button>
+
+      {/* Credits in bottom-right corner */}
+      <div className="credit-homepage">
+        Ocean - Photo by Engin Akyurt from{" "}
+        <a
+          href="https://www.pexels.com/photo/close-up-photo-of-blue-body-of-water-1435752/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Pexels
+        </a>
+      </div>
     </div>
-  );
+  )
 }
 
-export default Home;
-
+export default Home
