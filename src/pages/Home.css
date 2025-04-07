@@ -48,8 +48,8 @@
 .HomePage button {
   font-size: 18px;
   padding: 10px 20px;
-  background-color: #4caf50;
-  color: #fff;
+  background-color: #ffffff; /* Button background changed to white */
+  color: #000000; /* Text color changed to black for contrast */
   border: none;
   cursor: pointer;
   border-radius: 5px;

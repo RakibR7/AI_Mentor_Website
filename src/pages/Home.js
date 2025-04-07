@@ -5,7 +5,6 @@ import "./Home.css"
 function Home() {
   const navigate = useNavigate()
 
-  // Navigate to /subject-tutor when button is clicked
   const handleExploreTutors = () => {
     navigate("/subject-tutor")
   }
@@ -16,10 +15,13 @@ function Home() {
       <h2>Empowering Your Learning Journey</h2>
       <p>Experience interactive tutoring through our AI-driven platform.</p>
 
-      {/* Button triggers navigation */}
-      <button onClick={handleExploreTutors}>Explore Tutors</button>
+      {/* Button wrapped in .button-borders div for the outlined effect */}
+      <div className="button-borders">
+        <button className="primary-button" onClick={handleExploreTutors}>
+          Explore Tutors
+        </button>
+      </div>
 
-      {/* Credits in bottom-right corner */}
       <div className="credit-homepage">
         Ocean - Photo by Engin Akyurt from{" "}
         <a

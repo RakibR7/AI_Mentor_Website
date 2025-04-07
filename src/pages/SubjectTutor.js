@@ -3,23 +3,20 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SubjectTutor.css';
 
+// src/pages/SubjectTutor.js
+// In SubjectTutor.js, update the subjects array
 const subjects = [
   {
     id: 'biology',
     name: 'Biology Tutor',
-    model: 'ft:gpt-3.5-turbo-0125:personal:biology'
+    model: 'ft:gpt-3.5-turbo-0125:personal:csp-biology-finetuning-data10-20000:BJN7IqeS'
   },
   {
-    id: 'maths',
-    name: 'Maths Tutor',
-    model: 'ft:gpt-3.5-turbo-0125:personal:maths'
-  },
-  {
-    id: 'english',
-    name: 'English Tutor',
-    model: 'ft:gpt-3.5-turbo-0125:personal:english'
+    id: 'python',
+    name: 'Python Tutor',
+    model: 'ft:gpt-3.5-turbo-0125:personal:dr1-csv6-shortened-3381:B0DlvD7p'
   }
-  // You can add more subjects here
+  // Removed math and English tutors to simplify
 ];
 
 function SubjectTutor() {
