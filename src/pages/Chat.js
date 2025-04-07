@@ -1,5 +1,5 @@
 // src/pages/Chat.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchAIResponse } from "../api/aiService";
 import ModelSelector from "../components/ModelSelector";
@@ -18,28 +18,31 @@ function Chat() {
   const [activeConversationId, setActiveConversationId] = useState(initialConversationId);
   const [userInput, setUserInput] = useState("");
 
-  // Fetch conversations for the selected tutor
-  const fetchConversations = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/conversations?tutor=${tutor}`);
-      const data = await response.json();
-      setConversations(data);
-      if (!activeConversationId && data.length > 0) {
-        setActiveConversationId(data[0]._id);
-      } else if (data.length === 0) {
-        setActiveConversationId(null);
-      }
-    } catch (error) {
-      console.error("Error loading conversations:", error);
-    }
-  };
+  // In Chat.js, change the fetchConversations useCallback
+    const fetchConversations = useCallback(async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/conversations?tutor=${tutor}`);
+        const data = await response.json();
+        setConversations(data);
 
-  // Fetch whenever tutor changes
-  useEffect(() => {
-    fetchConversations();
-    // Clear any active conversation when tutor is changed
-    setActiveConversationId(null);
-  }, [tutor]);
+        // Only set active conversation if none is selected and data is available
+        if (data.length > 0) {
+          if (!activeConversationId) {
+            setActiveConversationId(data[0]._id);
+          }
+        } else {
+          setActiveConversationId(null);
+        }
+      } catch (error) {
+        console.error("Error loading conversations:", error);
+      }
+    }, [tutor, activeConversationId]);
+
+    // And update the useEffect to avoid resetting the active conversation unnecessarily
+    useEffect(() => {
+      fetchConversations();
+      // Only clear active conversation when tutor changes
+    }, [tutor, fetchConversations]);
 
   const handleSend = async () => {
     if (!userInput.trim() || !activeConversationId) return;
@@ -56,8 +59,8 @@ function Chat() {
           tutor: tutor
         })
       });
-      // Get AI response
-      const aiReply = await fetchAIResponse(userInput, selectedModel);
+      // Get AI response - pass the tutor parameter
+      const aiReply = await fetchAIResponse(userInput, selectedModel, tutor);
       // Save AI response
       await fetch("http://localhost:5000/api/messages", {
         method: "POST",
@@ -129,7 +132,11 @@ function Chat() {
         <button className="NewConversationButton" onClick={handleNewConversation}>
           + New Conversation
         </button>
-        <ModelSelector selectedModel={selectedModel} onModelChange={setSelectedModel} />
+        <ModelSelector
+          selectedModel={selectedModel}
+          onModelChange={setSelectedModel}
+          tutor={tutor}
+        />
         <ul className="ConversationList">
           {conversations.map((conv) => (
             <li key={conv._id} className={conv._id === activeConversationId ? "active" : ""}>

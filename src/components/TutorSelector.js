@@ -4,8 +4,8 @@ import React from "react";
 const TutorSelector = ({ tutor, onTutorChange }) => {
   const subjects = [
     { id: "biology", name: "Biology" },
-    { id: "maths", name: "Maths" },
-    { id: "english", name: "English" }
+    { id: "python", name: "Python" }
+    // Removed math and English to match SubjectTutor
   ];
 
   return (
