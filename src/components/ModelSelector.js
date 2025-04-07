@@ -1,11 +1,43 @@
 // src/components/ModelSelector.js
 import React from 'react';
 
-const ModelSelector = ({ selectedModel, onModelChange }) => {
-  const models = [
-    { id: 'gpt-3.5-turbo', name: 'GPT-3.5' },
-    { id: 'gpt-4', name: 'GPT-4' }
-  ];
+const ModelSelector = ({ selectedModel, onModelChange, tutor }) => {
+  // Define models based on the selected tutor - only fine-tuned models
+  const getModelsForTutor = (tutorType) => {
+    switch(tutorType) {
+      case 'biology':
+        return [
+          { id: 'ft:gpt-3.5-turbo-0125:personal:csp-biology-finetuning-data10-20000:BJN7IqeS', name: 'Biology (Fine-tuned)' }
+        ];
+      case 'python':
+        return [
+          { id: 'ft:gpt-3.5-turbo-0125:personal:dr1-csv6-shortened-3381:B0DlvD7p', name: 'Python (Fine-tuned)' }
+        ];
+      default:
+        return [
+          { id: 'gpt-3.5-turbo', name: 'GPT-3.5' }
+        ];
+    }
+  };
+
+  const models = getModelsForTutor(tutor);
+
+  // If the selected model isn't in the current models list, select the first one
+  React.useEffect(() => {
+    const modelExists = models.some(m => m.id === selectedModel);
+    if (!modelExists && models.length > 0) {
+      onModelChange(models[0].id);
+    }
+  }, [tutor, selectedModel, models, onModelChange]);
+
+  // If there's only one model, just show it as text instead of a dropdown
+  if (models.length === 1) {
+    return (
+      <div className="model-selector">
+        <label>Model: {models[0].name}</label>
+      </div>
+    );
+  }
 
   return (
     <div className="model-selector">

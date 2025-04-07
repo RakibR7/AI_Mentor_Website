@@ -5,7 +5,7 @@ const cors = require('cors');
 const fetch = require('node-fetch'); // Ensure you're using node-fetch@2
 require('dotenv').config();
 
-const app = express();
+const app = express();  // This needs to be defined at the top
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
@@ -125,15 +125,37 @@ app.delete('/api/conversations/:id', async (req, res) => {
   }
 });
 
-// OpenAI endpoint (unchanged)
+// OpenAI endpoint (updated to handle fine-tuned models)
 app.post('/api/openai', async (req, res) => {
-  const { message, model } = req.body;
+  const { message, model, tutor } = req.body;
 
   if (!message) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
   try {
+    // Check if the model is one of your fine-tuned models
+    const isFinetuned = model && model.startsWith('ft:');
+
+    // Create a tutor-specific system message
+    let systemMessage = '';
+    if (tutor === 'biology') {
+      systemMessage = 'You are a Biology tutor specializing in teaching biology concepts in an engaging and informative way. Answer questions about biology topics like cells, genetics, evolution, ecology, and human physiology.';
+    } else if (tutor === 'python') {
+      systemMessage = 'You are a Python programming tutor specializing in teaching coding concepts. Help students understand programming logic, syntax, debugging, and best practices in Python.';
+    } else if (tutor === 'maths') {
+      systemMessage = 'You are a Mathematics tutor specializing in teaching math concepts from basic arithmetic to advanced calculus, algebra, geometry, and statistics.';
+    } else if (tutor === 'english') {
+      systemMessage = 'You are an English tutor specializing in teaching grammar, vocabulary, writing, literature analysis, and reading comprehension.';
+    } else {
+      systemMessage = `You are a ${tutor} tutor specializing in teaching this subject in an engaging, informative way.`;
+    }
+
+    // Default to GPT-3.5-turbo if the model is missing or has an error
+    const modelToUse = model || "gpt-3.5-turbo";
+
+    console.log(`Using model: ${modelToUse} for tutor: ${tutor}`);
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -141,21 +163,61 @@ app.post('/api/openai', async (req, res) => {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: model || "gpt-3.5-turbo",
-        messages: [{ role: "user", content: message }],
-        max_tokens: 150
+        model: modelToUse,
+        messages: [
+          // Always include a system message for better context
+          { role: "system", content: systemMessage },
+          { role: "user", content: message }
+        ],
+        max_tokens: 500, // Increased for more detailed responses
+        temperature: 0.7 // Adjust as needed for creativity vs. precision
       })
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.error('OpenAI API Error:', data);
+      const errorData = await response.json();
+      console.error('OpenAI API Error:', errorData);
+
+      // If there's a model error, fall back to GPT-3.5-turbo
+      if (errorData.error?.code === 'model_not_found') {
+        console.log('Model not found, falling back to gpt-3.5-turbo');
+
+        const fallbackResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "system", content: systemMessage },
+              { role: "user", content: message }
+            ],
+            max_tokens: 500,
+            temperature: 0.7
+          })
+        });
+
+        if (!fallbackResponse.ok) {
+          const fallbackError = await fallbackResponse.json();
+          return res.status(fallbackResponse.status).json({
+            error: 'OpenAI API Error (fallback failed)',
+            details: fallbackError.error?.message || 'Unknown error'
+          });
+        }
+
+        const fallbackData = await fallbackResponse.json();
+        return res.json({ response: fallbackData.choices[0].message.content });
+      }
+
       return res.status(response.status).json({
         error: 'OpenAI API Error',
-        details: data.error?.message || 'Unknown error'
+        details: errorData.error?.message || 'Unknown error'
       });
     }
+
+    const data = await response.json();
 
     if (!data.choices || !data.choices[0]?.message?.content) {
       console.error('Unexpected API response:', data);
