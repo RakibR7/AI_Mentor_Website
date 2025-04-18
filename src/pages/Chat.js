@@ -43,44 +43,67 @@ function Chat() {
     fetchConversations()
   }, [tutor, fetchConversations])
 
-  const handleSend = async () => {
-    if (!userInput.trim() || !activeConversationId) return
-    try {
-      // Save user message
-      await fetch("http://51.21.106.225:5000/api/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: activeConversationId,
-          sender: "user",
-          text: userInput,
-          model: selectedModel,
-          tutor: tutor
-        })
-      })
+const handleSend = async () => {
+  if (!userInput.trim() || !activeConversationId) return;
 
-      // Get AI response
-      const aiReply = await fetchAIResponse(userInput, selectedModel, tutor)
+  const userMessage = {
+    sender: "user",
+    text: userInput,
+    model: selectedModel,
+    tutor: tutor,
+    conversationId: activeConversationId
+  };
 
-      // Save AI response
-      await fetch("http://51.21.106.225:5000/api/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: activeConversationId,
-          sender: "ai",
-          text: aiReply,
-          model: selectedModel,
-          tutor: tutor
-        })
-      })
+  // Update local state immediately to show user message
+  setConversations(prevConversations =>
+    prevConversations.map(conv =>
+      conv._id === activeConversationId
+        ? { ...conv, messages: [...conv.messages, userMessage] }
+        : conv
+    )
+  );
 
-      await fetchConversations()
-    } catch (error) {
-      console.error("Error sending message:", error)
-    }
-    setUserInput("")
+  try {
+    // Send user message to backend
+    await fetch("http://51.21.106.225:5000/api/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userMessage)
+    });
+
+    // Get AI reply
+    const aiReply = await fetchAIResponse(userInput, selectedModel, tutor);
+
+    const aiMessage = {
+      sender: "ai",
+      text: aiReply,
+      model: selectedModel,
+      tutor: tutor,
+      conversationId: activeConversationId
+    };
+
+    // Save AI response to backend
+    await fetch("http://51.21.106.225:5000/api/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(aiMessage)
+    });
+
+    // Update state to show AI message
+    setConversations(prevConversations =>
+      prevConversations.map(conv =>
+        conv._id === activeConversationId
+          ? { ...conv, messages: [...conv.messages, aiMessage] }
+          : conv
+      )
+    );
+  } catch (error) {
+    console.error("Error sending message:", error);
   }
+
+  setUserInput(""); // clear input field
+};
+
 
   // Send on Enter key press
   const handleKeyDown = (e) => {
