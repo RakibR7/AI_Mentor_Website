@@ -6,6 +6,9 @@ import ModelSelector from "../components/ModelSelector";
 import TutorSelector from "../components/TutorSelector";
 import "./Chat.css";
 
+// Define API base URL - should match the one in aiService.js
+const API_BASE_URL = 'http://51.21.106.225:5000';
+
 function Chat() {
   const location = useLocation();
   const initialTutor = location.state?.tutor || "maths"; // default tutor
@@ -17,38 +20,44 @@ function Chat() {
   const [conversations, setConversations] = useState([]);
   const [activeConversationId, setActiveConversationId] = useState(initialConversationId);
   const [userInput, setUserInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  // In Chat.js, change the fetchConversations useCallback
-    const fetchConversations = useCallback(async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/conversations?tutor=${tutor}`);
-        const data = await response.json();
-        setConversations(data);
-
-        // Only set active conversation if none is selected and data is available
-        if (data.length > 0) {
-          if (!activeConversationId) {
-            setActiveConversationId(data[0]._id);
-          }
-        } else {
-          setActiveConversationId(null);
-        }
-      } catch (error) {
-        console.error("Error loading conversations:", error);
+  // Updated fetchConversations with proper API URL
+  const fetchConversations = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/conversations?tutor=${tutor}`);
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
       }
-    }, [tutor, activeConversationId]);
+      const data = await response.json();
+      setConversations(data);
 
-    // And update the useEffect to avoid resetting the active conversation unnecessarily
-    useEffect(() => {
-      fetchConversations();
-      // Only clear active conversation when tutor changes
-    }, [tutor, fetchConversations]);
+      // Only set active conversation if none is selected and data is available
+      if (data.length > 0) {
+        if (!activeConversationId) {
+          setActiveConversationId(data[0]._id);
+        }
+      } else {
+        setActiveConversationId(null);
+      }
+    } catch (error) {
+      console.error("Error loading conversations:", error);
+    }
+  }, [tutor, activeConversationId]);
+
+  useEffect(() => {
+    fetchConversations();
+    // Only clear active conversation when tutor changes
+  }, [tutor, fetchConversations]);
 
   const handleSend = async () => {
-    if (!userInput.trim() || !activeConversationId) return;
+    if (!userInput.trim() || !activeConversationId || isLoading) return;
+
+    setIsLoading(true);
+
     try {
-      // Save user message
-      await fetch("http://localhost:5000/api/messages", {
+      // Save user message - updated URL
+      await fetch(`${API_BASE_URL}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -59,10 +68,12 @@ function Chat() {
           tutor: tutor
         })
       });
-      // Get AI response - pass the tutor parameter
+
+      // Get AI response - uses fetchAIResponse which should be updated in aiService.js
       const aiReply = await fetchAIResponse(userInput, selectedModel, tutor);
-      // Save AI response
-      await fetch("http://localhost:5000/api/messages", {
+
+      // Save AI response - updated URL
+      await fetch(`${API_BASE_URL}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -73,11 +84,14 @@ function Chat() {
           tutor: tutor
         })
       });
+
       await fetchConversations();
     } catch (error) {
       console.error("Error sending message:", error);
+    } finally {
+      setIsLoading(false);
+      setUserInput("");
     }
-    setUserInput("");
   };
 
   // Allow sending message on Enter key press
@@ -89,7 +103,8 @@ function Chat() {
 
   const handleNewConversation = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/conversations", {
+      // Updated URL
+      const response = await fetch(`${API_BASE_URL}/api/conversations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -98,6 +113,11 @@ function Chat() {
           tutor: tutor
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+
       const newConversation = await response.json();
       setConversations([newConversation, ...conversations]);
       setActiveConversationId(newConversation._id);
@@ -108,11 +128,14 @@ function Chat() {
 
   const handleDeleteConversation = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/conversations/${id}?tutor=${tutor}`, {
+      // Updated URL
+      await fetch(`${API_BASE_URL}/api/conversations/${id}?tutor=${tutor}`, {
         method: "DELETE"
       });
+
       const updatedConversations = conversations.filter((conv) => conv._id !== id);
       setConversations(updatedConversations);
+
       if (activeConversationId === id && updatedConversations.length > 0) {
         setActiveConversationId(updatedConversations[0]._id);
       } else if (updatedConversations.length === 0) {
@@ -169,8 +192,11 @@ function Chat() {
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask your mentor..."
+            disabled={isLoading}
           />
-          <button onClick={handleSend}>Send</button>
+          <button onClick={handleSend} disabled={isLoading || !userInput.trim()}>
+            {isLoading ? "Sending..." : "Send"}
+          </button>
         </div>
       </div>
     </div>
