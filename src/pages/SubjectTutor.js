@@ -25,7 +25,7 @@ function SubjectTutor() {
   const handleSelectSubject = async (subject) => {
     try {
       // Create a new conversation for the selected subject
-      const response = await fetch('http://localhost:5000/api/conversations', {
+      const response = await fetch('http://51.21.106.225:5000/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
