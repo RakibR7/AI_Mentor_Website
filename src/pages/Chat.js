@@ -1,120 +1,95 @@
 // src/pages/Chat.js
-import React, { useState, useEffect, useCallback } from "react"
-import { useLocation } from "react-router-dom"
-import { fetchAIResponse } from "../api/aiService"
-import ModelSelector from "../components/ModelSelector"
-import TutorSelector from "../components/TutorSelector"
-import "./Chat.css"
+import React, { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
+import { fetchAIResponse } from "../api/aiService";
+import ModelSelector from "../components/ModelSelector";
+import TutorSelector from "../components/TutorSelector";
+import "./Chat.css";
 
 function Chat() {
-  const location = useLocation()
-  const initialTutor = location.state?.tutor || "maths" // default tutor
-  const initialModel = location.state?.selectedModel || "gpt-3.5-turbo"
-  const initialConversationId = location.state?.conversationId || null
+  const location = useLocation();
+  const initialTutor = location.state?.tutor || "maths"; // default tutor
+  const initialModel = location.state?.selectedModel || "gpt-3.5-turbo";
+  const initialConversationId = location.state?.conversationId || null;
 
-  const [tutor, setTutor] = useState(initialTutor)
-  const [selectedModel, setSelectedModel] = useState(initialModel)
-  const [conversations, setConversations] = useState([])
-  const [activeConversationId, setActiveConversationId] = useState(initialConversationId)
-  const [userInput, setUserInput] = useState("")
+  const [tutor, setTutor] = useState(initialTutor);
+  const [selectedModel, setSelectedModel] = useState(initialModel);
+  const [conversations, setConversations] = useState([]);
+  const [activeConversationId, setActiveConversationId] = useState(initialConversationId);
+  const [userInput, setUserInput] = useState("");
 
-  // Fetch all conversations for current tutor
-  const fetchConversations = useCallback(async () => {
-    try {
-      const response = await fetch(`http://51.21.106.225:5000/api/conversations?tutor=${tutor}`)
-      const data = await response.json()
-      setConversations(data)
+  // In Chat.js, change the fetchConversations useCallback
+    const fetchConversations = useCallback(async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/conversations?tutor=${tutor}`);
+        const data = await response.json();
+        setConversations(data);
 
-      if (data.length > 0) {
-        // If there's no active conversation, default to the first
-        if (!activeConversationId) {
-          setActiveConversationId(data[0]._id)
+        // Only set active conversation if none is selected and data is available
+        if (data.length > 0) {
+          if (!activeConversationId) {
+            setActiveConversationId(data[0]._id);
+          }
+        } else {
+          setActiveConversationId(null);
         }
-      } else {
-        setActiveConversationId(null)
+      } catch (error) {
+        console.error("Error loading conversations:", error);
       }
+    }, [tutor, activeConversationId]);
+
+    // And update the useEffect to avoid resetting the active conversation unnecessarily
+    useEffect(() => {
+      fetchConversations();
+      // Only clear active conversation when tutor changes
+    }, [tutor, fetchConversations]);
+
+  const handleSend = async () => {
+    if (!userInput.trim() || !activeConversationId) return;
+    try {
+      // Save user message
+      await fetch("http://localhost:5000/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId: activeConversationId,
+          sender: "user",
+          text: userInput,
+          model: selectedModel,
+          tutor: tutor
+        })
+      });
+      // Get AI response - pass the tutor parameter
+      const aiReply = await fetchAIResponse(userInput, selectedModel, tutor);
+      // Save AI response
+      await fetch("http://localhost:5000/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId: activeConversationId,
+          sender: "ai",
+          text: aiReply,
+          model: selectedModel,
+          tutor: tutor
+        })
+      });
+      await fetchConversations();
     } catch (error) {
-      console.error("Error loading conversations:", error)
+      console.error("Error sending message:", error);
     }
-  }, [tutor, activeConversationId])
-
-  // Re-fetch conversations when tutor changes or at initial load
-  useEffect(() => {
-    fetchConversations()
-  }, [tutor, fetchConversations])
-
-const handleSend = async () => {
-  if (!userInput.trim() || !activeConversationId) return;
-
-  const userMessage = {
-    sender: "user",
-    text: userInput,
-    model: selectedModel,
-    tutor: tutor,
-    conversationId: activeConversationId
+    setUserInput("");
   };
 
-  // Update local state immediately to show user message
-  setConversations(prevConversations =>
-    prevConversations.map(conv =>
-      conv._id === activeConversationId
-        ? { ...conv, messages: [...conv.messages, userMessage] }
-        : conv
-    )
-  );
-
-  try {
-    // Send user message to backend
-    await fetch("http://51.21.106.225:5000/api/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userMessage)
-    });
-
-    // Get AI reply
-    const aiReply = await fetchAIResponse(userInput, selectedModel, tutor);
-
-    const aiMessage = {
-      sender: "ai",
-      text: aiReply,
-      model: selectedModel,
-      tutor: tutor,
-      conversationId: activeConversationId
-    };
-
-    // Save AI response to backend
-    await fetch("http://51.21.106.225:5000/api/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(aiMessage)
-    });
-
-    // Update state to show AI message
-    setConversations(prevConversations =>
-      prevConversations.map(conv =>
-        conv._id === activeConversationId
-          ? { ...conv, messages: [...conv.messages, aiMessage] }
-          : conv
-      )
-    );
-  } catch (error) {
-    console.error("Error sending message:", error);
-  }
-
-  setUserInput(""); // clear input field
-};
-
-
-  // Send on Enter key press
+  // Allow sending message on Enter key press
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      handleSend()
+      handleSend();
     }
-  }
+  };
 
   const handleNewConversation = async () => {
     try {
-      const response = await fetch("http://51.21.106.225:5000/api/conversations", {
+      const response = await fetch("http://localhost:5000/api/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -122,33 +97,33 @@ const handleSend = async () => {
           model: selectedModel,
           tutor: tutor
         })
-      })
-      const newConversation = await response.json()
-      setConversations([newConversation, ...conversations])
-      setActiveConversationId(newConversation._id)
+      });
+      const newConversation = await response.json();
+      setConversations([newConversation, ...conversations]);
+      setActiveConversationId(newConversation._id);
     } catch (error) {
-      console.error("Error creating conversation:", error)
+      console.error("Error creating conversation:", error);
     }
-  }
+  };
 
   const handleDeleteConversation = async (id) => {
     try {
-      await fetch(`http://51.21.106.225:5000/api/conversations/${id}?tutor=${tutor}`, {
+      await fetch(`http://localhost:5000/api/conversations/${id}?tutor=${tutor}`, {
         method: "DELETE"
-      })
-      const updatedConversations = conversations.filter((conv) => conv._id !== id)
-      setConversations(updatedConversations)
+      });
+      const updatedConversations = conversations.filter((conv) => conv._id !== id);
+      setConversations(updatedConversations);
       if (activeConversationId === id && updatedConversations.length > 0) {
-        setActiveConversationId(updatedConversations[0]._id)
+        setActiveConversationId(updatedConversations[0]._id);
       } else if (updatedConversations.length === 0) {
-        setActiveConversationId(null)
+        setActiveConversationId(null);
       }
     } catch (error) {
-      console.error("Error deleting conversation:", error)
+      console.error("Error deleting conversation:", error);
     }
-  }
+  };
 
-  const activeConversation = conversations.find((conv) => conv._id === activeConversationId)
+  const activeConversation = conversations.find((conv) => conv._id === activeConversationId);
 
   return (
     <div className="ChatContainer">
@@ -199,7 +174,7 @@ const handleSend = async () => {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Chat
+export default Chat;

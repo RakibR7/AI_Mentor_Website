@@ -1,18 +1,19 @@
 // src/api/aiService.js
-const BASE_URL = process.env.REACT_APP_API_URL || "http://51.21.106.225:5000";
-
-export const fetchAIResponse = async (message, model, tutor) => {
+export async function fetchAIResponse(userMessage, selectedModel = "gpt-3.5-turbo", tutor = "general") {
   try {
-    const response = await fetch(`${BASE_URL}/api/openai`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, model, tutor })
+    const response = await fetch('http://localhost:5000/api/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: userMessage,
+        model: selectedModel,
+        tutor: tutor
+      }),
     });
-
     const data = await response.json();
     return data.response;
   } catch (error) {
     console.error("Error fetching AI response:", error);
-    return "Sorry, I couldn't get a response.";
+    throw error;
   }
-};
+}
