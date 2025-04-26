@@ -3,8 +3,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SubjectTutor.css';
 
-// src/pages/SubjectTutor.js
-// In SubjectTutor.js, update the subjects array
 const subjects = [
   {
     id: 'biology',
@@ -16,7 +14,6 @@ const subjects = [
     name: 'Python Tutor',
     model: 'ft:gpt-3.5-turbo-0125:personal:dr1-csv6-shortened-3381:B0DlvD7p'
   }
-  // Removed math and English tutors to simplify
 ];
 
 function SubjectTutor() {
@@ -24,19 +21,17 @@ function SubjectTutor() {
 
   const handleSelectSubject = async (subject) => {
     try {
-      // Create a new conversation for the selected subject
-      const response = await fetch('http://51.21.106.225:5000/api/conversations', {
+      const response = await fetch('https://api.teachmetutor.academy/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: subject.name, // initial title is the subject name
+          title: subject.name,
           model: subject.model,
-          tutor: subject.id  // use subject id to route to the correct collection
+          tutor: subject.id
         })
       });
       const newConversation = await response.json();
 
-      // Navigate to the Chat page with the new conversation ID, tutor, and model info
       navigate('/chat', { state: { conversationId: newConversation._id, tutor: subject.id, selectedModel: subject.model } });
     } catch (error) {
       console.error('Error creating conversation for subject:', error);
