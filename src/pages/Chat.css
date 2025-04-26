@@ -123,3 +123,28 @@
   cursor: pointer;
   border-radius: 0 4px 4px 0;
 }
+
+/* Add to Chat.css */
+.ErrorMessage {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.LoadingIndicator, .LoadingMessages {
+  color: #757575;
+  text-align: center;
+  margin: 20px 0;
+  font-style: italic;
+}
+
+.EmptyConversation, .NoConversation, .NoConversations {
+  color: #757575;
+  text-align: center;
+  margin-top: 40px;
+  font-style: italic;
+}
+

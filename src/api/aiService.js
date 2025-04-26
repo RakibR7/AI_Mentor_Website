@@ -1,5 +1,4 @@
-// src/api/aiService.js
-export const API_BASE_URL = 'http://51.21.106.225:5000';
+export const API_BASE_URL = 'https://api.teachmetutor.academy';
 
 export async function fetchAIResponse(userMessage, selectedModel = "gpt-3.5-turbo", tutor = "general") {
   try {
