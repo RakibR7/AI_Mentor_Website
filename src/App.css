@@ -1,4 +1,85 @@
 .App {
   text-align: center;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.Content {
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+
+button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  background-color: #3498db;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+button.secondary {
+  background-color: var(--secondary);
+}
+
+button.secondary:hover {
+  background-color: #1abc9c;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.8em;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 0.7em;
+  color: var(--primary);
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.6em;
+  color: var(--secondary);
+}
+
+a {
+  color: var(--info);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--primary);
+}
+
+input, textarea {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
 }

@@ -13,10 +13,10 @@ function Navbar() {
           <Link to="/chat">Chat</Link>
         </li>
         <li>
-          <Link to="/about">About</Link>
+           <Link to="/subject-tutor">Subject Tutor</Link>
         </li>
         <li>
-        <Link to="/subject-tutor">Subject Tutor</Link>
+          <Link to="/about">About</Link>
         </li>
       </ul>
     </nav>

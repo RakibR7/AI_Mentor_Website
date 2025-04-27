@@ -1,18 +1,8 @@
-/* src/pages/Chat.css */
 .ChatContainer {
   display: flex;
   height: 100vh;
   font-family: Arial, sans-serif;
-
-  /*background: url('C:\Users\Rakib\PycharmProjects\Ai Mentor Web\ai-mentor\public\study.jpg') no-repeat center center;*/
-  background-size: cover;
-  min-height: 100vh;
-  animation: fadeIn 0.6s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  padding-top: 50px;
 }
 
 .Sidebar {
@@ -26,6 +16,7 @@
 
 .tutor-selector {
   margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .NewConversationButton {
@@ -45,12 +36,11 @@
 }
 
 .ConversationList li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
 }
 
 .ConversationList li.active {
@@ -75,21 +65,19 @@
 .Messages {
   flex: 1;
   overflow-y: auto;
-  padding-right: 10px;
-  background-color: rgba(249, 249, 249, 0.7); /* Translucent instead of solid */
+  padding: 10px;
+  background-color: #f9f9f9;
   border-radius: 5px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
 }
 
 .userMsg, .aiMsg {
-  background-color: rgba(255, 255, 255, 0.7); /* Also translucent for messages */
   padding: 10px;
   margin: 10px;
   border-radius: 5px;
   max-width: 80%;
 }
-
 
 .userMsg {
   background-color: #e0f7fa;
@@ -124,7 +112,6 @@
   border-radius: 0 4px 4px 0;
 }
 
-/* Add to Chat.css */
 .ErrorMessage {
   background-color: #ffebee;
   color: #c62828;
@@ -147,4 +134,3 @@
   margin-top: 40px;
   font-style: italic;
 }
-
