@@ -1,4 +1,3 @@
-// src/pages/Chat.js
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchAIResponse, API_BASE_URL } from "../api/aiService";
@@ -25,7 +24,6 @@ function Chat() {
     try {
       setError(null);
       setIsFetching(true);
-      console.log(`Fetching conversations for tutor: ${tutor} from ${API_BASE_URL}`);
       const response = await fetch(`${API_BASE_URL}/api/conversations?tutor=${tutor}`);
 
       if (!response.ok) {
@@ -33,18 +31,10 @@ function Chat() {
       }
 
       const data = await response.json();
-      console.log(`Found ${data.length} conversations`);
       setConversations(data);
 
-      // Only set active conversation if none is selected and data is available
-      if (data.length > 0) {
-        if (!activeConversationId) {
-          setActiveConversationId(data[0]._id);
-          console.log(`Set active conversation to: ${data[0]._id}`);
-        }
-      } else {
-        setActiveConversationId(null);
-        console.log("No conversations found, set active to null");
+      if (data.length > 0 && !activeConversationId) {
+        setActiveConversationId(data[0]._id);
       }
     } catch (error) {
       console.error("Error loading conversations:", error);
@@ -65,8 +55,7 @@ function Chat() {
     setError(null);
 
     try {
-      console.log(`Sending message to conversation: ${activeConversationId}`);
-      const userResponse = await fetch(`${API_BASE_URL}/api/messages`, {
+      await fetch(`${API_BASE_URL}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -78,17 +67,8 @@ function Chat() {
         })
       });
 
-      if (!userResponse.ok) {
-        throw new Error(`Failed to send user message: ${userResponse.status}`);
-      }
-
-      // Get AI response
-      console.log("Getting AI response");
       const aiReply = await fetchAIResponse(userInput, selectedModel, tutor);
-
-      // Save AI response
-      console.log("Saving AI response");
-      const aiResponse = await fetch(`${API_BASE_URL}/api/messages`, {
+      await fetch(`${API_BASE_URL}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -100,11 +80,6 @@ function Chat() {
         })
       });
 
-      if (!aiResponse.ok) {
-        throw new Error(`Failed to save AI response: ${aiResponse.status}`);
-      }
-
-      console.log("Refreshing conversations");
       await fetchConversations();
     } catch (error) {
       console.error("Error sending message:", error);
@@ -115,7 +90,6 @@ function Chat() {
     }
   };
 
-  // Allow sending message on Enter key press
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -127,7 +101,6 @@ function Chat() {
     try {
       setError(null);
       setIsLoading(true);
-      console.log("Creating new conversation");
 
       const response = await fetch(`${API_BASE_URL}/api/conversations`, {
         method: "POST",
@@ -144,8 +117,6 @@ function Chat() {
       }
 
       const newConversation = await response.json();
-      console.log(`Created conversation with ID: ${newConversation._id}`);
-
       setConversations([newConversation, ...conversations]);
       setActiveConversationId(newConversation._id);
     } catch (error) {
@@ -161,8 +132,6 @@ function Chat() {
 
     try {
       setError(null);
-      console.log(`Deleting conversation: ${id}`);
-
       const response = await fetch(`${API_BASE_URL}/api/conversations/${id}?tutor=${tutor}`, {
         method: "DELETE"
       });
@@ -174,12 +143,8 @@ function Chat() {
       const updatedConversations = conversations.filter((conv) => conv._id !== id);
       setConversations(updatedConversations);
 
-      if (activeConversationId === id && updatedConversations.length > 0) {
-        setActiveConversationId(updatedConversations[0]._id);
-        console.log(`Set new active conversation to: ${updatedConversations[0]._id}`);
-      } else if (updatedConversations.length === 0) {
-        setActiveConversationId(null);
-        console.log("No conversations left, set active to null");
+      if (activeConversationId === id) {
+        setActiveConversationId(updatedConversations.length > 0 ? updatedConversations[0]._id : null);
       }
     } catch (error) {
       console.error("Error deleting conversation:", error);

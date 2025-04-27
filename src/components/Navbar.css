@@ -1,6 +1,12 @@
 .Navbar {
-  background-color: #f8f8f8;
-  padding: 10px;
+  background: linear-gradient(to right, #2980b9, #16a085);
+  padding: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .Navbar ul {
@@ -17,5 +23,14 @@
 
 .Navbar a {
   text-decoration: none;
-  color: #333;
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.Navbar a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }

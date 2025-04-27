@@ -1,48 +1,45 @@
-/* src/pages/SubjectTutor.css */
 .subject-tutor-container {
-  padding: 20px;
+  padding: 40px 20px;
   text-align: center;
-
-  background: url('C:\Users\Rakib\PycharmProjects\Ai Mentor Web\ai-mentor\public\blur.jpg') no-repeat center center;
+  background: url('../../public/blur.jpg') no-repeat center center;
   background-size: cover;
-  min-height: 100vh;
-  animation: fadeIn 0.6s ease-in;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+.subject-tutor-container h2 {
+  color: #ffffff;
+  font-size: 32px;
+  margin-bottom: 30px;
+  font-weight: 600;
 }
 
 .subject-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-.HomePage button {
-  font-size: 18px;
-  padding: 10px 20px;
-  background-color: #ffffff; /* Button background changed to white */
-  color: #000000; /* Text color changed to black for contrast */
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.2s;
+  gap: 25px;
+  margin-top: 40px;
 }
 
 .subject-buttons button {
   font-size: 18px;
-  padding: 10px 20px;
-  background-color: #ffffff; /* Button background changed to white */
-  color: #000000; /* Text color changed to black for contrast */
+  padding: 15px 25px;
+  background-color: #ffffff;
+  color: #2c3e50;
   border: none;
   cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.2s;
+  border-radius: 8px;
+  min-width: 180px;
 }
 
-.subject-buttons button:hover {
-  background-color: #45a049;
+@media (max-width: 768px) {
+  .subject-buttons button {
+    font-size: 16px;
+    padding: 12px 20px;
+    min-width: 160px;
+  }
 }
