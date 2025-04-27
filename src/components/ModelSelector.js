@@ -1,8 +1,6 @@
-// src/components/ModelSelector.js
 import React from 'react';
 
 const ModelSelector = ({ selectedModel, onModelChange, tutor }) => {
-  // Define models based on the selected tutor - only fine-tuned models
   const getModelsForTutor = (tutorType) => {
     switch(tutorType) {
       case 'biology':
@@ -22,7 +20,6 @@ const ModelSelector = ({ selectedModel, onModelChange, tutor }) => {
 
   const models = getModelsForTutor(tutor);
 
-  // If the selected model isn't in the current models list, select the first one
   React.useEffect(() => {
     const modelExists = models.some(m => m.id === selectedModel);
     if (!modelExists && models.length > 0) {
@@ -30,7 +27,6 @@ const ModelSelector = ({ selectedModel, onModelChange, tutor }) => {
     }
   }, [tutor, selectedModel, models, onModelChange]);
 
-  // If there's only one model, just show it as text instead of a dropdown
   if (models.length === 1) {
     return (
       <div className="model-selector">
