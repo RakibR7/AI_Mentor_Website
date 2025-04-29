@@ -4,7 +4,7 @@ const TutorSelector = ({ tutor, onTutorChange }) => {
   const subjects = [
     { id: "biology", name: "Biology" },
     { id: "python", name: "Python" }
-  ];
+  ]
 
   return (
     <div className="tutor-selector">
@@ -17,7 +17,7 @@ const TutorSelector = ({ tutor, onTutorChange }) => {
         ))}
       </select>
     </div>
-  );
-};
+  )
+}
 
 export default TutorSelector;

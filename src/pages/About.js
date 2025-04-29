@@ -3,10 +3,8 @@ import "./About.css";
 
 function About() {
   return (
-    <div className="about-page">
-      <div className="about-header">
-        <h1>About Mentor AI</h1>
-      </div>
+    <div className="Page">
+      <h1>About Mentor AI</h1>
 
       <div className="about-content">
         <div className="about-section">
@@ -37,6 +35,7 @@ function About() {
             respond with helpful, educational content tailored to your learning level.
           </p>
         </div>
+
         <div className="about-section">
           <h2>Contact Us</h2>
           <p>
@@ -45,11 +44,12 @@ function About() {
           </p>
         </div>
       </div>
+
       <div className="about-footer">
         <p>2025 AI Mentor Version 3.0</p>
       </div>
     </div>
-  );
+  )
 }
 
 export default About;

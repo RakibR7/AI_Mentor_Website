@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Chat from "./pages/Chat";
-import SubjectTutor from "./pages/SubjectTutor"; // new page
+import SubjectTutor from "./pages/SubjectTutor";
 import "./App.css";
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
         </div>
       </div>
     </Router>
-  );
+  )
 }
 
 export default App;

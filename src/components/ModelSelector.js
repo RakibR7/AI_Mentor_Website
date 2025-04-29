@@ -6,17 +6,17 @@ const ModelSelector = ({ selectedModel, onModelChange, tutor }) => {
       case 'biology':
         return [
           { id: 'ft:gpt-3.5-turbo-0125:personal:csp-biology-finetuning-data10-20000:BJN7IqeS', name: 'Biology (Fine-tuned)' }
-        ];
+        ]
       case 'python':
         return [
           { id: 'ft:gpt-3.5-turbo-0125:personal:dr1-csv6-shortened-3381:B0DlvD7p', name: 'Python (Fine-tuned)' }
-        ];
+        ]
       default:
         return [
           { id: 'gpt-3.5-turbo', name: 'GPT-3.5' }
-        ];
+        ]
     }
-  };
+  }
 
   const models = getModelsForTutor(tutor);
 
@@ -32,7 +32,7 @@ const ModelSelector = ({ selectedModel, onModelChange, tutor }) => {
       <div className="model-selector">
         <label>Model: {models[0].name}</label>
       </div>
-    );
+    )
   }
 
   return (
@@ -46,7 +46,7 @@ const ModelSelector = ({ selectedModel, onModelChange, tutor }) => {
         ))}
       </select>
     </div>
-  );
-};
+  )
+}
 
 export default ModelSelector;

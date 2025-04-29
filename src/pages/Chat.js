@@ -65,7 +65,7 @@ function Chat() {
           model: selectedModel,
           tutor: tutor
         })
-      });
+      })
 
       const aiReply = await fetchAIResponse(userInput, selectedModel, tutor);
       await fetch(`${API_BASE_URL}/api/messages`, {
@@ -78,7 +78,7 @@ function Chat() {
           model: selectedModel,
           tutor: tutor
         })
-      });
+      })
 
       await fetchConversations();
     } catch (error) {
@@ -88,14 +88,14 @@ function Chat() {
       setIsLoading(false);
       setUserInput("");
     }
-  };
+  }
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
-  };
+  }
 
   const handleNewConversation = async () => {
     try {
@@ -110,7 +110,7 @@ function Chat() {
           model: selectedModel,
           tutor: tutor
         })
-      });
+      })
 
       if (!response.ok) {
         throw new Error(`Server responded with status ${response.status}`);
@@ -125,7 +125,7 @@ function Chat() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   const handleDeleteConversation = async (id, e) => {
     e.stopPropagation();
@@ -134,7 +134,7 @@ function Chat() {
       setError(null);
       const response = await fetch(`${API_BASE_URL}/api/conversations/${id}?tutor=${tutor}`, {
         method: "DELETE"
-      });
+      })
 
       if (!response.ok) {
         throw new Error(`Server responded with status ${response.status}`);
@@ -144,15 +144,64 @@ function Chat() {
       setConversations(updatedConversations);
 
       if (activeConversationId === id) {
-        setActiveConversationId(updatedConversations.length > 0 ? updatedConversations[0]._id : null);
+        if (updatedConversations.length > 0) {
+          setActiveConversationId(updatedConversations[0]._id);
+        } else {
+          setActiveConversationId(null);
+        }
       }
     } catch (error) {
       console.error("Error deleting conversation:", error);
       setError("Failed to delete conversation. Please try again.");
     }
-  };
+  }
 
   const activeConversation = conversations.find((conv) => conv._id === activeConversationId);
+
+  function renderMessages() {
+    if (isFetching) {
+      return <div className="LoadingMessages">Loading messages...</div>;
+    }
+
+    if (!activeConversation) {
+      return <p className="NoConversation">No conversation selected. Create a new one or select from the sidebar.</p>;
+    }
+
+    if (!activeConversation.messages || activeConversation.messages.length === 0) {
+      return <p className="EmptyConversation">Start a conversation by typing a message below</p>;
+    }
+
+    return activeConversation.messages.map((msg, index) => (
+      <div key={index} className={msg.sender === "user" ? "userMsg" : "aiMsg"}>
+        <p>{msg.text}</p>
+      </div>
+    ));
+  }
+
+  function renderConversationList() {
+    if (isFetching) {
+      return <div className="LoadingIndicator">Loading conversations...</div>;
+    }
+
+    if (conversations.length === 0) {
+      return <li className="NoConversations">No conversations yet</li>;
+    }
+
+    return conversations.map((conv) => (
+      <li key={conv._id} className={conv._id === activeConversationId ? "active" : ""}>
+        <span onClick={() => setActiveConversationId(conv._id)}>
+          {conv.title ? conv.title : "Untitled Conversation"}
+        </span>
+        <button
+          className="DeleteButton"
+          onClick={(e) => handleDeleteConversation(conv._id, e)}
+          aria-label="Delete conversation"
+        >
+          X
+        </button>
+      </li>
+    ));
+  }
 
   return (
     <div className="ChatContainer">
@@ -170,49 +219,14 @@ function Chat() {
           onModelChange={setSelectedModel}
           tutor={tutor}
         />
-        {isFetching ? (
-          <div className="LoadingIndicator">Loading conversations...</div>
-        ) : (
-          <ul className="ConversationList">
-            {conversations.length > 0 ? (
-              conversations.map((conv) => (
-                <li key={conv._id} className={conv._id === activeConversationId ? "active" : ""}>
-                  <span onClick={() => setActiveConversationId(conv._id)}>
-                    {conv.title ? conv.title : "Untitled Conversation"}
-                  </span>
-                  <button
-                    className="DeleteButton"
-                    onClick={(e) => handleDeleteConversation(conv._id, e)}
-                    aria-label="Delete conversation"
-                  >
-                    X
-                  </button>
-                </li>
-              ))
-            ) : (
-              <li className="NoConversations">No conversations yet</li>
-            )}
-          </ul>
-        )}
+        <ul className="ConversationList">
+          {renderConversationList()}
+        </ul>
       </div>
       <div className="ChatMain">
         {error && <div className="ErrorMessage">{error}</div>}
         <div className="Messages">
-          {isFetching ? (
-            <div className="LoadingMessages">Loading messages...</div>
-          ) : activeConversation ? (
-            activeConversation.messages && activeConversation.messages.length > 0 ? (
-              activeConversation.messages.map((msg, index) => (
-                <div key={index} className={msg.sender === "user" ? "userMsg" : "aiMsg"}>
-                  <p>{msg.text}</p>
-                </div>
-              ))
-            ) : (
-              <p className="EmptyConversation">Start a conversation by typing a message below</p>
-            )
-          ) : (
-            <p className="NoConversation">No conversation selected. Create a new one or select from the sidebar.</p>
-          )}
+          {renderMessages()}
         </div>
         <div className="InputArea">
           <input
@@ -232,7 +246,7 @@ function Chat() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 export default Chat;
