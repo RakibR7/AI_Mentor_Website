@@ -1,4 +1,3 @@
-// src/pages/SubjectTutor.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SubjectTutor.css';
@@ -14,7 +13,7 @@ const subjects = [
     name: 'Python Tutor',
     model: 'ft:gpt-3.5-turbo-0125:personal:dr1-csv6-shortened-3381:B0DlvD7p'
   }
-];
+]
 
 function SubjectTutor() {
   const navigate = useNavigate();
@@ -29,14 +28,14 @@ function SubjectTutor() {
           model: subject.model,
           tutor: subject.id
         })
-      });
+      })
       const newConversation = await response.json();
 
       navigate('/chat', { state: { conversationId: newConversation._id, tutor: subject.id, selectedModel: subject.model } });
     } catch (error) {
       console.error('Error creating conversation for subject:', error);
     }
-  };
+  }
 
   return (
     <div className="subject-tutor-container">
@@ -49,7 +48,7 @@ function SubjectTutor() {
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 export default SubjectTutor;

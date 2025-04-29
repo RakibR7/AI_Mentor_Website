@@ -10,7 +10,7 @@ export async function fetchAIResponse(userMessage, selectedModel = "gpt-3.5-turb
         model: selectedModel,
         tutor: tutor
       }),
-    });
+    })
 
     if (!response.ok) {
       throw new Error(`Server responded with status ${response.status}`);

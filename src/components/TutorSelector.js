@@ -1,12 +1,10 @@
-// src/components/TutorSelector.js
 import React from "react";
 
 const TutorSelector = ({ tutor, onTutorChange }) => {
   const subjects = [
     { id: "biology", name: "Biology" },
     { id: "python", name: "Python" }
-    // Removed math and English to match SubjectTutor
-  ];
+  ]
 
   return (
     <div className="tutor-selector">
@@ -19,7 +17,7 @@ const TutorSelector = ({ tutor, onTutorChange }) => {
         ))}
       </select>
     </div>
-  );
-};
+  )
+}
 
 export default TutorSelector;
