@@ -175,7 +175,7 @@ function Chat() {
       <div key={index} className={msg.sender === "user" ? "userMsg" : "aiMsg"}>
         <p>{msg.text}</p>
       </div>
-    ));
+    ))
   }
 
   function renderConversationList() {
@@ -195,8 +195,7 @@ function Chat() {
         <button
           className="DeleteButton"
           onClick={(e) => handleDeleteConversation(conv._id, e)}
-          aria-label="Delete conversation"
-        >
+          aria-label="Delete conversation">
           X
         </button>
       </li>
@@ -210,15 +209,13 @@ function Chat() {
         <button
           className="NewConversationButton"
           onClick={handleNewConversation}
-          disabled={isLoading || isFetching}
-        >
+          disabled={isLoading || isFetching}>
           {isFetching ? "Loading..." : "+ New Conversation"}
         </button>
         <ModelSelector
           selectedModel={selectedModel}
           onModelChange={setSelectedModel}
-          tutor={tutor}
-        />
+          tutor={tutor}/>
         <ul className="ConversationList">
           {renderConversationList()}
         </ul>
@@ -239,8 +236,7 @@ function Chat() {
           />
           <button
             onClick={handleSend}
-            disabled={isLoading || !userInput.trim() || !activeConversationId || isFetching}
-          >
+            disabled={isLoading || !userInput.trim() || !activeConversationId || isFetching}>
             {isLoading ? "Sending..." : "Send"}
           </button>
         </div>
