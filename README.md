@@ -17,7 +17,6 @@ AI Mentor is a React-based web application that leverages fine-tuned AI models t
   - Quizzes with AI-powered evaluation and feedback
   - Topic-specific exercises
 - **Progress Tracking**: Monitor your learning journey with detailed statistics
-- **Responsive Design**: Works on desktop and mobile devices
 
 ## Tech Stack
 
@@ -33,9 +32,8 @@ AI Mentor is a React-based web application that leverages fine-tuned AI models t
 
 ### Prerequisites
 
-- Node.js (v14 or later)
-- npm
-- API access (see below)
+- Latest Node.js
+- API access 
 
 ### Installation
 
